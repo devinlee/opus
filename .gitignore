@@ -4,3 +4,5 @@ Android/app/build/
 Android/app/.externalNativeBuild/
 Android/app/src/main/libs/
 Android/app/src/main/obj/
+Android/.gradle/
+Android/.idea/

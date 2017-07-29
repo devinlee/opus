@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
             if (v == Stop) {
                 Log.e("TestOpus:","Stop");
                 isStart = false;
-                opus.destroy();
             }
         }
     }
@@ -93,10 +92,10 @@ public class MainActivity extends AppCompatActivity {
                         System.arraycopy(encodeBuf, 0, newEncodeBytes, 0, ret3);
                         encodes.add(newEncodeBytes);
 
-                        if(encodes.size()>500)
-                        {
-                            isStart=false;
-                        }
+//                        if(encodes.size()>500)
+//                        {
+//                            isStart=false;
+//                        }
                     }
                     audioRecord.stop();
                     audioRecord.release();
@@ -119,7 +118,12 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 try {
 //                    bufferSize = AudioTrack.getMinBufferSize(FRAME_SAMPLE_RATE, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT);
-                    audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, FRAME_SAMPLE_RATE, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, FRAME_SIZE, AudioTrack.MODE_STREAM);
+                    if(audioTrack==null)
+                    {
+                        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, FRAME_SAMPLE_RATE, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, FRAME_SIZE, AudioTrack.MODE_STREAM);
+                        audioTrack.play();
+                    }
+
                     Log.e("TestOpus:", "playAudio run");
                     for (byte[] b : encodes) {
                         short[] decodeBuf = new short[FRAME_SIZE];
@@ -130,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
                         decodes.add(decodeBuf2);
                     }
 
-                    audioTrack.play();
                     short[] playBuf;
                     while (decodes.size()>0)
                     {
@@ -153,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         isStart = false;
         opus.destroy();
+        opus=null;
         super.onDestroy();
     }
 }
