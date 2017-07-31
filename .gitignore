@@ -6,3 +6,4 @@ Android/app/src/main/libs/
 Android/app/src/main/obj/
 Android/.gradle/
 Android/.idea/
+.gitignore~

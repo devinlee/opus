@@ -3,13 +3,8 @@
 #import <AudioToolbox/AudioToolbox.h>
 #import "Opus.h"
 
-#define MIN_SIZE_PER_FRAME 2000
 #define QUEUE_BUFFER_SIZE 3      //队列缓冲个数
-
-#define OPUS_FRAME_SIZE 320
-#define OPUS_COMPLEXITY 8
-#define OPUS_FRAME_SAMPLE_RATE 16000
-#define OPUS_BITRATE_BPS 16000
+#define kDefaultBufferDurationSeconds 0.02   //调整这个值使得录音的缓冲区大小
 
 @interface AudioQueuePlay() {
     AudioQueueRef audioQueue;                                 //音频播放队列
@@ -17,55 +12,46 @@
     AudioQueueBufferRef audioQueueBuffers[QUEUE_BUFFER_SIZE]; //音频缓存
     BOOL audioQueueBufferUsed[QUEUE_BUFFER_SIZE];             //判断音频缓存是否在使用
     NSLock *sysnLock;
-//    NSData *tempData;
     OSStatus osState;
-        Opus *_opus2;
 }
 @property (atomic, assign) Opus *opus;
+@property (atomic, assign) double bufferDurationSeconds;
 @end
 
 @implementation AudioQueuePlay
 
-- (instancetype)init
+- (id)init:(Opus *) opusClass withSampleRate:(int)sampleRate
 {
     self = [super init];
     if (self) {
         sysnLock = [[NSLock alloc]init];
-        _opus2=[[Opus alloc] init:OPUS_FRAME_SAMPLE_RATE withBitrateBps:OPUS_BITRATE_BPS withComplexity:OPUS_COMPLEXITY withFrameSize:OPUS_FRAME_SIZE];
-        self.opus=_opus2;
-        
+        self.opus=opusClass;
+        self.bufferDurationSeconds = kDefaultBufferDurationSeconds;
         
         // 播放PCM使用
-        if (_audioDescription.mSampleRate <= 0) {
-            //设置音频参数
-            _audioDescription.mSampleRate = 8000.0;//采样率
+        if (_audioDescription.mSampleRate <= 0)
+        {//设置音频参数
+            _audioDescription.mSampleRate = sampleRate;//采样率
             _audioDescription.mFormatID = kAudioFormatLinearPCM;
-            // 下面这个是保存音频数据的方式的说明，如可以根据大端字节序或小端字节序，浮点数或整数以及不同体位去保存数据
-            _audioDescription.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-            //1单声道 2双声道
-            _audioDescription.mChannelsPerFrame = 1;
-            //每一个packet一侦数据,每个数据包下的桢数，即每个数据包里面有多少桢
-            _audioDescription.mFramesPerPacket = 1;
-            //每个采样点16bit量化 语音每采样点占用位数
-            _audioDescription.mBitsPerChannel = 16;
+            _audioDescription.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;//保存音频数据的方式的说明，如可以根据大端字节序或小端字节序，浮点数或整数以及不同体位去保存数据
+            _audioDescription.mChannelsPerFrame = 1;//1单声道 2双声道
+            _audioDescription.mFramesPerPacket = 1;//每一个packet一侦数据,每个数据包下的桢数，即每个数据包里面有多少桢
+            _audioDescription.mBitsPerChannel = 16;//每个采样点16bit量化 语音每采样点占用位数
             _audioDescription.mBytesPerFrame = (_audioDescription.mBitsPerChannel / 8) * _audioDescription.mChannelsPerFrame;
-            //每个数据包的bytes总数，每桢的bytes数*每个数据包的桢数
-            _audioDescription.mBytesPerPacket = _audioDescription.mBytesPerFrame * _audioDescription.mFramesPerPacket;
+            _audioDescription.mBytesPerPacket = _audioDescription.mBytesPerFrame * _audioDescription.mFramesPerPacket;//每个数据包的bytes总数，每桢的bytes数*每个数据包的桢数
         }
-        
-        // 使用player的内部线程播放 新建输出
-        AudioQueueNewOutput(&_audioDescription, AudioPlayerAQInputCallback, (__bridge void * _Nullable)(self), nil, 0, 0, &audioQueue);
-        
-        // 设置音量
-        AudioQueueSetParameter(audioQueue, kAudioQueueParam_Volume, 1.0);
+        AudioQueueNewOutput(&_audioDescription, AudioPlayerAQInputCallback, (__bridge void * _Nullable)(self), nil, 0, 0, &audioQueue);// 使用player的内部线程播放 新建输出
+        AudioQueueSetParameter(audioQueue, kAudioQueueParam_Volume, 1.0);// 设置音量
         
         // 初始化需要的缓冲区
-        for (int i = 0; i < QUEUE_BUFFER_SIZE; i++) {
+        for (int i = 0; i < QUEUE_BUFFER_SIZE; i++)
+        {
             audioQueueBufferUsed[i] = false;
-            
-            osState = AudioQueueAllocateBuffer(audioQueue, MIN_SIZE_PER_FRAME, &audioQueueBuffers[i]);
-            
-            printf("第 %d 个AudioQueueAllocateBuffer 初始化结果 %d (0表示成功)", i + 1, osState);
+            //计算估算的缓存区大小
+            int frames = (int)ceil(self.bufferDurationSeconds * _audioDescription.mSampleRate);
+            int bufferByteSize = frames * _audioDescription.mBytesPerFrame;
+            osState = AudioQueueAllocateBuffer(audioQueue, bufferByteSize, &audioQueueBuffers[i]);
+            printf("第 %d 个AudioQueueAllocateBuffer 初始化结果 %d (0表示成功)，缓冲区大小 %d", i + 1, osState, bufferByteSize);
         }
         
         osState = AudioQueueStart(audioQueue, NULL);
@@ -77,23 +63,19 @@
 }
 
 - (void)resetPlay {
-    if (audioQueue != nil) {
+    if (audioQueue != nil)
+    {
         AudioQueueReset(audioQueue);
     }
 }
 
-// 播放相关
--(void)playWithData:(NSMutableData *)data {
-    
+- (void)playWithData:(NSData *)data
+{
     [sysnLock lock];
-    
-    NSMutableData *desPcm=[[NSMutableData alloc] initWithCapacity:OPUS_FRAME_SIZE];
-    [self.opus decode:data withDecoderOut:desPcm withEncoderInSize:(int)data.length];
-    
-    // 得到数据
-    NSUInteger len = desPcm.length;
-    Byte *bytes = (Byte*)malloc(len);
-    [desPcm getBytes:bytes length: len];
+    NSLog(@"解码前数据长度：%d", (int)data.length);
+    NSData *desPcm=[self.opus decode:data];
+    int desLen = (int)desPcm.length;
+    NSLog(@"解码前数据长度：%d", desLen);
     
     int i = 0;
     while (true) {
@@ -108,15 +90,10 @@
         }
     }
     
-    audioQueueBuffers[i] -> mAudioDataByteSize =  (unsigned int)len;
-    // 把bytes的头地址开始的len字节给mAudioData
-    memcpy(audioQueueBuffers[i] -> mAudioData, bytes, len);
-    
-    //
-    free(bytes);
+    audioQueueBuffers[i] -> mAudioDataByteSize =  (unsigned int)desLen;
+    memcpy(audioQueueBuffers[i] -> mAudioData, desPcm.bytes, desLen);//把bytes的头地址开始的len字节给mAudioData
+//  free(desPcm.bytes);
     AudioQueueEnqueueBuffer(audioQueue, audioQueueBuffers[i], 0, NULL);
-    
-    printf("本次播放数据大小: %lu", len);
     [sysnLock unlock];
 }
 
@@ -147,7 +124,6 @@ static void AudioPlayerAQInputCallback(void* inUserData,AudioQueueRef audioQueue
     if (audioQueue != nil) {
         AudioQueueStop(audioQueue,true);
     }
-    
     audioQueue = nil;
     sysnLock = nil;
 }

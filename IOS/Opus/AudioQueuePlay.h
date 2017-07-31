@@ -7,8 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Opus.h"
 
 @interface AudioQueuePlay : NSObject
+- (id)init:(Opus *) opusClass withSampleRate:(int)sampleRate;
+
 // 播放并顺带附上数据
 - (void)playWithData: (NSMutableData *)data;
 

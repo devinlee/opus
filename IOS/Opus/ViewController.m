@@ -9,20 +9,26 @@
 #import "ViewController.h"
 #import "AudioQueueRecord.h"
 #import "AudioQueuePlay.h"
-//#import "TestRecord.h"
+#import "Opus.h"
+
+#define OPUS_FRAME_SIZE 320
+#define OPUS_COMPLEXITY 8
+#define OPUS_FRAME_SAMPLE_RATE 16000
+#define OPUS_BITRATE_BPS 16000
 
 @interface ViewController ()
 {
     AudioQueueRecord *audioQueueRecord;
     AudioQueuePlay *audioQueuePlay;
-//    TestRecord *testRecord;
+    Opus *_opus;
 }
 
 @end
 
 @implementation ViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
     UIButton* btn1 =[UIButton buttonWithType:UIButtonTypeRoundedRect];
     btn1.frame=CGRectMake(100, 100, 100, 50);
@@ -38,16 +44,14 @@
     [btn2 addTarget:self action:@selector(onBtnEvent:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:btn2];
 
-    audioQueueRecord=[[AudioQueueRecord alloc] init];
-    audioQueuePlay=[[AudioQueuePlay alloc] init];
-    
-//    testRecord=[[TestRecord alloc] init];
+    _opus=[[Opus alloc] init:OPUS_FRAME_SAMPLE_RATE withBitrateBps:OPUS_BITRATE_BPS withComplexity:OPUS_COMPLEXITY withFrameSize:OPUS_FRAME_SIZE];
+    audioQueueRecord=[[AudioQueueRecord alloc] init:_opus withSampleRate:OPUS_FRAME_SAMPLE_RATE];
+    audioQueuePlay=[[AudioQueuePlay alloc] init:_opus withSampleRate:OPUS_FRAME_SAMPLE_RATE];
 }
 
-
-- (void)didReceiveMemoryWarning {
+- (void)didReceiveMemoryWarning
+{
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 - (void) onBtnEvent:(UIButton*) btn
@@ -56,18 +60,14 @@
         case 101:
             NSLog(@"开始录音");
             [audioQueueRecord startRecording];
-//            [testRecord  startRecord];
             break;
         case 102:
             NSLog(@"结束录音并播放");
-//            [testRecord stopRecord];
-            
             [audioQueueRecord stopRecording];
-            
-            
-            NSMutableArray *_data = [audioQueueRecord getData];
-            for (NSInteger i=0; i<_data.count; i++) {
-                [audioQueuePlay playWithData:_data[i]];
+            NSMutableArray *pcmDatas = [audioQueueRecord pcmDatas];
+            for (int i=0; i<pcmDatas.count; i++)
+            {
+                [audioQueuePlay playWithData:pcmDatas[i]];
             }
             break;
     }

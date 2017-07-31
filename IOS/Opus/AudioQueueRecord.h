@@ -1,8 +1,9 @@
 #import <Foundation/Foundation.h>
+#import "Opus.h"
 
 @interface AudioQueueRecord : NSObject
--(id)init;
--(void)startRecording;
--(void)stopRecording;
--(NSMutableArray *)getData;
+@property (atomic, assign) NSMutableArray *pcmDatas;
+- (id)init:(Opus *) opusClass withSampleRate:(int)sampleRate;
+- (void)startRecording;
+- (void)stopRecording;
 @end
