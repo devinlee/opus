@@ -31,13 +31,13 @@ jint FRAME_SIZE;
 jint COMPRESSION_RATE;
 
 extern "C"
-JNIEXPORT jint JNICALL Java_devin_opus_Opus_test(JNIEnv *env, jobject thiz)
+JNIEXPORT jint JNICALL Java_devin_opus_OpusNative_test(JNIEnv *env, jobject thiz)
 {
     return 1;
 }
 
 extern "C"
-JNIEXPORT jboolean JNICALL Java_devin_opus_Opus_init(JNIEnv *env, jobject thiz, jint frame_sample_rate, jint bitrate_bps, jint complexity, jint frame_size)
+JNIEXPORT jboolean JNICALL Java_devin_opus_OpusNative_init(JNIEnv *env, jobject thiz, jint frame_sample_rate, jint bitrate_bps, jint complexity, jint frame_size)
 {
     int error;
     FRAME_SIZE=frame_size;
@@ -63,7 +63,7 @@ JNIEXPORT jboolean JNICALL Java_devin_opus_Opus_init(JNIEnv *env, jobject thiz, 
 }
 
 extern "C"
-JNIEXPORT jint JNICALL Java_devin_opus_Opus_encode(JNIEnv *env, jobject thiz,jshortArray src_in,jbyteArray encoder_out)
+JNIEXPORT jint JNICALL Java_devin_opus_OpusNative_encode(JNIEnv *env, jobject thiz,jshortArray src_in,jbyteArray encoder_out)
 {
     opus_int32 max_data_bytes=2500;
     const opus_int16* pcm_data_encoder=env->GetShortArrayElements(src_in, 0);
@@ -79,7 +79,7 @@ JNIEXPORT jint JNICALL Java_devin_opus_Opus_encode(JNIEnv *env, jobject thiz,jsh
 }
 
 extern "C"
-JNIEXPORT jint JNICALL Java_devin_opus_Opus_decode(JNIEnv *env, jobject thiz,jbyteArray encoder_in,jshortArray decoder_out, jint encoder_in_size)
+JNIEXPORT jint JNICALL Java_devin_opus_OpusNative_decode(JNIEnv *env, jobject thiz,jbyteArray encoder_in,jshortArray decoder_out, jint encoder_in_size)
 {
     opus_int16* pcm_data_decoder=env->GetShortArrayElements(decoder_out, 0);
     jbyte* opus_data_decoder=env->GetByteArrayElements(encoder_in, 0);
@@ -95,7 +95,7 @@ JNIEXPORT jint JNICALL Java_devin_opus_Opus_decode(JNIEnv *env, jobject thiz,jby
 }
 
 extern "C"
-JNIEXPORT jboolean JNICALL Java_devin_opus_Opus_destroy(JNIEnv *env, jobject thiz)
+JNIEXPORT jboolean JNICALL Java_devin_opus_OpusNative_destroy(JNIEnv *env, jobject thiz)
 {
     opus_encoder_destroy(enc);
     opus_decoder_destroy(dec);

@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private Button Stop;
     private boolean isStart;
 
-    private static Opus opus =new Opus();
+    private static OpusNative opus =new OpusNative();
     private short[] tempBuffer;
     private AudioRecord audioRecord;
     private AudioTrack audioTrack;
@@ -29,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
     private int audioChannels =  AudioFormat.CHANNEL_IN_MONO;
     private static final int FRAME_SIZE=320;
     private static final int COMPLEXITY=8;
-    private static final int FRAME_SAMPLE_RATE=16000;
-    private static final int BITRATE_BPS=16000;
+    private static final int FRAME_SAMPLE_RATE=8000;
+    private static final int BITRATE_BPS=8000;
 
     static {
         opus.register(FRAME_SAMPLE_RATE, BITRATE_BPS, COMPLEXITY, FRAME_SIZE);
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if(audioRecord==null)
                     {
-                        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,FRAME_SAMPLE_RATE,  audioChannels, AudioFormat.ENCODING_PCM_16BIT, FRAME_SIZE);//
+                        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,FRAME_SAMPLE_RATE,  audioChannels, AudioFormat.ENCODING_PCM_16BIT, FRAME_SIZE*2);//
                         audioRecord.startRecording();
                     }
 
@@ -97,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
 //                            isStart=false;
 //                        }
                     }
+                    int t=encodes.size()*40;
+                    Log.e("TestOpus:","总长："+t);
                     audioRecord.stop();
                     audioRecord.release();
                     audioRecord = null;

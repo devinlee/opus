@@ -13,7 +13,7 @@
 - (id)init:(Opus *) opusClass withSampleRate:(int)sampleRate;
 
 // 播放并顺带附上数据
-- (void)playWithData: (NSMutableData *)data;
+- (void)playWithData: (NSData *)data;
 
 // reset
 - (void)resetPlay;

@@ -2,8 +2,8 @@ package devin.opus;
 
 import android.util.Log;
 
-public class Opus {
-    public Opus() {
+public class OpusNative {
+    public OpusNative() {
     }
 
     /**

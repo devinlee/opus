@@ -51,7 +51,7 @@
 {
     short decodedBuffer[FRAME_SIZE];
     int decodedLen = sizeof(short) * [self opusDecode:(Byte *)encodedPcmData.bytes length:(int)encodedPcmData.length output:decodedBuffer];
-    NSData* pcmData = [NSData dataWithBytes:(Byte *)decodedBuffer length:decodedLen];
+    NSData* pcmData = [NSData dataWithBytes:decodedBuffer length:decodedLen];
     return pcmData;
 }
 

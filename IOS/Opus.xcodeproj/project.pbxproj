@@ -22,6 +22,8 @@
 		0337A6B71F2E5DAD002DA4F0 /* AudioQueuePlay.m in Sources */ = {isa = PBXBuildFile; fileRef = 0337A6B61F2E5DAD002DA4F0 /* AudioQueuePlay.m */; };
 		0343BB231F2F099300B0BDA3 /* Opus.m in Sources */ = {isa = PBXBuildFile; fileRef = 0343BB221F2F099300B0BDA3 /* Opus.m */; };
 		0362059F1F2E7571006AB895 /* AudioQueueRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 0362059D1F2E7571006AB895 /* AudioQueueRecord.m */; };
+		036C5D851F31B8F100D95A43 /* OpusAudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 036C5D831F31B8F100D95A43 /* OpusAudio.m */; };
+		037A09141F30C8F000859132 /* libNiuHongHongSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 037A09111F30C2B300859132 /* libNiuHongHongSDK.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +56,10 @@
 		0343BB221F2F099300B0BDA3 /* Opus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Opus.m; sourceTree = "<group>"; };
 		0362059D1F2E7571006AB895 /* AudioQueueRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioQueueRecord.m; sourceTree = "<group>"; };
 		0362059E1F2E7571006AB895 /* AudioQueueRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioQueueRecord.h; sourceTree = "<group>"; };
+		036C5D831F31B8F100D95A43 /* OpusAudio.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpusAudio.m; sourceTree = "<group>"; };
+		036C5D841F31B8F100D95A43 /* OpusAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpusAudio.h; sourceTree = "<group>"; };
+		037A09111F30C2B300859132 /* libNiuHongHongSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libNiuHongHongSDK.a; path = Opus/lib/libNiuHongHongSDK.a; sourceTree = "<group>"; };
+		037A09131F30C2BE00859132 /* OpusAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpusAudio.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +67,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				037A09141F30C8F000859132 /* libNiuHongHongSDK.a in Frameworks */,
 				0337A6B11F2E3F30002DA4F0 /* AudioToolbox.framework in Frameworks */,
 				0337A6AC1F2E28E7002DA4F0 /* AVFoundation.framework in Frameworks */,
 				0337A69F1F2DE199002DA4F0 /* libopus.a in Frameworks */,
@@ -90,6 +97,8 @@
 		0337A6851F2DE10A002DA4F0 /* Opus */ = {
 			isa = PBXGroup;
 			children = (
+				036C5D831F31B8F100D95A43 /* OpusAudio.m */,
+				036C5D841F31B8F100D95A43 /* OpusAudio.h */,
 				0362059D1F2E7571006AB895 /* AudioQueueRecord.m */,
 				0362059E1F2E7571006AB895 /* AudioQueueRecord.h */,
 				0337A6A01F2DE1D7002DA4F0 /* include */,
@@ -127,6 +136,7 @@
 		0337A69D1F2DE199002DA4F0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				037A09111F30C2B300859132 /* libNiuHongHongSDK.a */,
 				0337A6B01F2E3F30002DA4F0 /* AudioToolbox.framework */,
 				0337A6AB1F2E28E7002DA4F0 /* AVFoundation.framework */,
 				0337A69E1F2DE199002DA4F0 /* libopus.a */,
@@ -137,6 +147,7 @@
 		0337A6A01F2DE1D7002DA4F0 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				037A09131F30C2BE00859132 /* OpusAudio.h */,
 				0337A6A11F2DE1D7002DA4F0 /* opus */,
 			);
 			path = include;
@@ -234,6 +245,7 @@
 				0337A6881F2DE10A002DA4F0 /* main.m in Sources */,
 				0343BB231F2F099300B0BDA3 /* Opus.m in Sources */,
 				0337A6AF1F2E3BD9002DA4F0 /* TestRecord2.m in Sources */,
+				036C5D851F31B8F100D95A43 /* OpusAudio.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
